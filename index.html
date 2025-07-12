@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Roblox Secret Code</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: url('https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/4X/b/5/d/b5df22212253eda5f0cebe857cc84dd9a874a478.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      text-shadow: 0 0 5px #000;
+    }
+
+    .container {
+      max-width: 360px;
+      margin: 80px auto;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 25px 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #000;
+      text-align: center;
+      position: relative;
+    }
+
+    .header-image {
+      width: 100px;
+      height: auto;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #f5b700;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 80%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+
+    input:disabled {
+      background: #555;
+      color: #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    #submitBtn {
+      background: #28a745;
+      color: #fff;
+    }
+
+    #submitBtn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    #copyBtn {
+      background: #007bff;
+      color: #fff;
+      display: none;
+    }
+
+    #loading {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .loading-icon {
+      width: 40px;
+      height: 40px;
+      border: 5px solid #28a745;
+      border-top: 5px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #status {
+      margin-top: 10px;
+      color: #ff8080;
+    }
+
+    #codeBox {
+      margin: 15px 0;
+      font-size: 1.2rem;
+      display: none;
+    }
+
+    #message {
+      font-size: 0.9rem;
+      margin-top: 5px;
+      color: #80ff80;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="header-image" src="https://i.imghippo.com/files/vCX1148SnI.png" alt="Roblox Icon">
+    <h1>Roblox Secret Code</h1>
+    <label>Enter Your User ID:</label><br>
+    <input type="text" id="userId" placeholder="RobloxUser123" autocomplete="off"><br>
+    <button id="submitBtn">Submit</button>
+    <div id="loading"><div class="loading-icon"></div></div>
+    <div id="codeBox">
+      Your Code: <strong id="secretCode">RB6W45GSPEKRF72R</strong>
+      <div id="message">Code claimed! Come back tomorrow.</div>
+    </div>
+    <button id="copyBtn">Copy Code</button>
+    <div id="status"></div>
+  </div>
+
+  <!-- Sound effect -->
+  <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
+
+  <script>
+    const submitBtn = document.getElementById('submitBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const userIdInput = document.getElementById('userId');
+    const loading = document.getElementById('loading');
+    const codeBox = document.getElementById('codeBox');
+    const secretCodeEl = document.getElementById('secretCode');
+    const status = document.getElementById('status');
+    const clickSound = document.getElementById('clickSound');
+
+    const FIXED_CODE = "RB6W45GSPEKRF72R";
+
+    function canSubmit(userId) {
+      const now = Date.now();
+      const key = `rb_last_${userId}`;
+      const lastTs = localStorage.getItem(key);
+      if (lastTs && now - lastTs < 30 * 60 * 1000) {
+        const diff = Math.ceil((30 * 60 * 1000 - (now - lastTs)) / 60000);
+        status.textContent = `Please wait ${diff} more minute(s).`;
+        return false;
+      }
+      return true;
+    }
+
+    submitBtn.addEventListener('click', () => {
+      clickSound.play();
+
+      const uid = userIdInput.value.trim();
+      if (!uid) {
+        status.textContent = '👤 Enter your Roblox User ID!';
+        return;
+      }
+
+      if (!canSubmit(uid)) return;
+
+      status.textContent = '';
+      submitBtn.disabled = true;
+      userIdInput.disabled = true;
+      loading.style.display = 'block';
+      codeBox.style.display = 'none';
+      copyBtn.style.display = 'none';
+
+      setTimeout(() => {
+        secretCodeEl.textContent = FIXED_CODE;
+        codeBox.style.display = 'block';
+        copyBtn.style.display = 'inline-block';
+        loading.style.display = 'none';
+        localStorage.setItem(`rb_last_${uid}`, Date.now());
+      }, 2000);
+    });
+
+    copyBtn.addEventListener('click', () => {
+      const code = secretCodeEl.textContent;
+      const textarea = document.createElement("textarea");
+      textarea.value = code;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        const success = document.execCommand('copy');
+        status.textContent = success ? '✅ Code copied!' : '⚠️ Copy failed.';
+      } catch {
+        status.textContent = '⚠️ Copy failed, please copy manually.';
+      }
+      document.body.removeChild(textarea);
+    });
+  </script>
+</body>
+</html>
